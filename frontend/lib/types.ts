@@ -14,8 +14,8 @@ export interface Task {
   description?: string; // optional task description
   completed: boolean;   // completion status, default: false
   userId: string;       // foreign key to user who owns this task
-  createdAt: string;    // task creation timestamp
-  updatedAt: string;    // last update timestamp
+  createdAt: string | Date;    // task creation timestamp
+  updatedAt: string | Date;    // last update timestamp
 }
 
 // Auth state interface

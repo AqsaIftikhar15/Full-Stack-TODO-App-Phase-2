@@ -11,6 +11,22 @@ interface TaskCardProps {
   onDeleteTask?: (id: string) => void;
 }
 
+const formatDate = (dateValue: string | Date | undefined): string => {
+  if (!dateValue) return 'Invalid Date';
+
+  try {
+    // Handle both string and Date objects
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    return date.toLocaleDateString();
+  } catch (error) {
+    return 'Invalid Date';
+  }
+};
+
 const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask, onToggleTask, onDeleteTask }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
@@ -94,7 +110,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask, onToggleTask, o
                 </p>
               )}
               <p className="text-xs text-gray-500 mt-2">
-                Created: {new Date(task.createdAt).toLocaleDateString()}
+                Created: {formatDate(task.createdAt)}
               </p>
             </div>
           </div>

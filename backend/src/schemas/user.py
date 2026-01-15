@@ -31,3 +31,9 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_id: Optional[uuid.UUID] = None
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse

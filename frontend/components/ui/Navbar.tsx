@@ -3,9 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from './ToastProvider';
 
 const Navbar: React.FC = () => {
   const { user, loading, logout, isAuthenticated } = useAuth();
+  const { showToast } = useToast();
 
   return (
     <nav className="bg-gradient-to-r from-bluish-500 to-purplish-500 text-white shadow-md">
@@ -28,7 +30,7 @@ const Navbar: React.FC = () => {
               <>
                 <span className="hidden md:inline">Welcome, {user?.name || user?.email}</span>
                 <button
-                  onClick={logout}
+                  onClick={() => logout(showToast)}
                   className="px-4 py-2 bg-white text-bluish-700 rounded-lg hover:bg-gray-100 transition duration-300 font-medium"
                 >
                   Logout

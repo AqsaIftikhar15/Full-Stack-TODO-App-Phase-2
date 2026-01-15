@@ -6,18 +6,17 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://neondb_owner:npg_6thPUwz3pAVB@db:5432/neondb
-      - SECRET_KEY=${BACKEND_SECRET_KEY:-supersecretkeychangeinproduction}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_ALGORITHM=${JWT_ALGORITHM}
-      - JWT_EXPIRY_DAYS=${JWT_EXPIRY_DAYS}
-      - API_BASE_URL=${API_BASE_URL}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
-      - ENVIRONMENT=${ENVIRONMENT}
-      - DEBUG=${DEBUG}
-    depends_on:
-      - db
+      - DATABASE_URL=postgresql://neondb_owner:npg_6thPUwz3pAVB@ep-patient-smoke-adqu4twg-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - SECRET_KEY=${SECRET_KEY:-c3c597c1cbe750c6f7c3f8a661e3b5d82d6529ebaf4dce58b5ecb2504dc4f5d1}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-6LrD8qcJ3LL8E70MePBpWRO9y715IEZB}
+      - JWT_SECRET=${JWT_SECRET:-6LrD8qcJ3LL8E70MePBpWRO9y715IEZB}
+      - JWT_ALGORITHM=HS256
+      - JWT_EXPIRY_DAYS=7
+      - API_BASE_URL=http://backend:8000
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+      - ENVIRONMENT=development
+      - DEBUG=true
     networks:
       - app-network
 
@@ -26,27 +25,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=${API_BASE_URL}
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
     depends_on:
       - backend
     networks:
       - app-network
 
-  db:
-    image: postgres:13
-    environment:
-      - POSTGRES_DB=neondb
-      - POSTGRES_USER=neondb_owner
-      - POSTGRES_PASSWORD=npg_6thPUwz3pAVB
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-volumes:
-  postgres_data:
+volumes: {}
 
 networks:
   app-network:

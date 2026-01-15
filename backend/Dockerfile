@@ -15,11 +15,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY ./src /app/src
 
-# Copy .env file if it exists
+# Copy initialization script
+COPY initialize_db.py /app/
+
+# Copy .env file
 COPY .env /app/.env
 
 # Expose port
 EXPOSE 8000
 
-# Run the application
+# Set PYTHONPATH and run the application
+ENV PYTHONPATH=/app
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

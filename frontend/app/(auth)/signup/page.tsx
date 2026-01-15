@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../hooks/useAuth';
+import { useToast } from '../../../components/ui/ToastProvider';
 import Loader from '../../../components/ui/Loader';
 import Navbar from '../../../components/ui/Navbar';
 
@@ -13,14 +14,15 @@ const SignupPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { signup, loading } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await signup(email, password, name);
-      router.push('/tasks'); // Redirect to tasks page after signup
+      await signup(email, password, name, showToast);
+      router.push('/'); // Redirect to homepage after signup
       router.refresh(); // Refresh to update the navbar
     } catch (err: any) {
       setError(err.message || 'Signup failed');

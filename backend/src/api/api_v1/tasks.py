@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import List
 import uuid
-from ..models.task import TaskCreate
-from ..models.user import User
-from ..schemas.task import TaskCreate as TaskCreateSchema, TaskResponse, TaskUpdate, TaskListResponse
+from ...models.task import TaskCreate
+from ...models.user import User
+from ...schemas.task import TaskCreate as TaskCreateSchema, TaskResponse, TaskUpdate, TaskListResponse
 from ..deps import get_current_user, get_db
-from ..repositories import TaskRepository
+from ...repositories.task_repository import TaskRepository
 
 
 router = APIRouter()
