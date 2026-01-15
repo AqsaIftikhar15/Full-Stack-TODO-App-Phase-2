@@ -1,7 +1,7 @@
 import { Task, User } from './types';
 
 // Base API URL from environment
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 // API Client with JWT token attachment
 class ApiClient {
@@ -18,6 +18,16 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       // For now, we'll look for token in localStorage (to be updated based on auth implementation)
       const token = localStorage.getItem('auth_token');
+
+      // Validate that the token is in proper JWT format (has 3 parts separated by dots)
+      if (token) {
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+          console.warn('Stored token is not a valid JWT format, removing it');
+          localStorage.removeItem('auth_token');
+          return null;
+        }
+      }
 
       // Check if token is expired before using it
       if (token && this.isTokenExpired(token)) {
@@ -81,19 +91,25 @@ class ApiClient {
 
       // Handle 401 Unauthorized - token might be expired
       if (response.status === 401) {
-        // In a real app, you might want to redirect to login or refresh the token
-        // For now, we'll remove the token and redirect to login
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('auth_token');
-          // In a real app, you would redirect to login page
-          // window.location.href = '/login';
+        // For login requests, we want to show the specific error from the server
+        // Check if this is a login request
+        if (endpoint.includes('/auth/login')) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.detail || errorData.message || 'Incorrect email or password');
+        } else {
+          // For other requests, it's likely an expired token scenario
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth_token');
+            // In a real app, you would redirect to login page
+            // window.location.href = '/login';
+          }
+          throw new Error('Unauthorized: Please log in again');
         }
-        throw new Error('Unauthorized: Please log in again');
       }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `API request failed: ${response.status}`);
+        throw new Error(errorData.detail || errorData.message || `API request failed: ${response.status}`);
       }
 
       // Handle responses that don't have a body (like DELETE requests)
@@ -109,14 +125,14 @@ class ApiClient {
   }
 
   // Authentication methods
-  async signup(userData: { email: string; password: string; name: string }): Promise<{ user: User; token: string }> {
+  async signup(userData: { email: string; password: string; username: string }): Promise<{ user: User; token: string }> {
     return this.request('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
   }
 
-  async login(credentials: { email: string; password: string }): Promise<{ user: User; token: string }> {
+  async login(credentials: { email: string; password: string }): Promise<{ user: User; access_token: string; token_type: string }> {
     return this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -130,32 +146,83 @@ class ApiClient {
   }
 
   // Task methods
-  async getTasks(userId: string): Promise<{ tasks: Task[] }> {
-    return this.request(`/api/${userId}/tasks`);
+  async getTasks(): Promise<{ tasks: any[] }> {
+    const response: any = await this.request(`/tasks/`);
+
+    // Map backend response to frontend Task interface
+    const mappedTasks = response.tasks.map((task: any) => ({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      completed: task.is_completed,
+      userId: task.user_id,
+      createdAt: task.created_at,
+      updatedAt: task.updated_at
+    }));
+
+    return { tasks: mappedTasks };
   }
 
-  async createTask(userId: string, taskData: { title: string; description?: string }): Promise<Task> {
-    return this.request(`/api/${userId}/tasks`, {
+  async createTask(taskData: { title: string; description?: string }): Promise<Task> {
+    const response: any = await this.request(`/tasks/`, {
       method: 'POST',
       body: JSON.stringify(taskData),
     });
+
+    // Map backend response to frontend Task interface
+    return {
+      id: response.id,
+      title: response.title,
+      description: response.description,
+      completed: response.is_completed,
+      userId: response.user_id,
+      createdAt: response.created_at,
+      updatedAt: response.updated_at
+    };
   }
 
-  async updateTask(userId: string, taskId: string, taskData: { title: string; description?: string }): Promise<Task> {
-    return this.request(`/api/${userId}/tasks/${taskId}`, {
+  async updateTask(taskId: string, taskData: { title: string; description?: string }): Promise<Task> {
+    const response: any = await this.request(`/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),
     });
+
+    // Map backend response to frontend Task interface
+    return {
+      id: response.id,
+      title: response.title,
+      description: response.description,
+      completed: response.is_completed,
+      userId: response.user_id,
+      createdAt: response.created_at,
+      updatedAt: response.updated_at
+    };
   }
 
-  async toggleTaskCompletion(userId: string, taskId: string): Promise<Task> {
-    return this.request(`/api/${userId}/tasks/${taskId}/complete`, {
-      method: 'PATCH',
+  async toggleTaskCompletion(taskId: string): Promise<Task> {
+    // First get the current task to know its current completion status
+    const currentTask: any = await this.request(`/tasks/${taskId}`);
+
+    // Toggle the completion status
+    const updatedTask: any = await this.request(`/tasks/${taskId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ is_completed: !currentTask.is_completed }),
     });
+
+    // Map backend response to frontend Task interface
+    return {
+      id: updatedTask.id,
+      title: updatedTask.title,
+      description: updatedTask.description,
+      completed: updatedTask.is_completed,
+      userId: updatedTask.user_id,
+      createdAt: updatedTask.created_at,
+      updatedAt: updatedTask.updated_at
+    };
   }
 
-  async deleteTask(userId: string, taskId: string): Promise<void> {
-    await this.request(`/api/${userId}/tasks/${taskId}`, {
+  async deleteTask(taskId: string): Promise<void> {
+    await this.request(`/tasks/${taskId}`, {
       method: 'DELETE',
     });
   }

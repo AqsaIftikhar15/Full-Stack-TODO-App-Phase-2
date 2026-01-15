@@ -7,7 +7,7 @@ import { useTasks } from '../hooks/useTasks';
 import { Task } from '../lib/types';
 import Navbar from '../components/ui/Navbar';
 import TaskForm from '../components/ui/TaskForm';
-import TaskList from '../components/ui/TaskList';
+import TaskTable from '../components/ui/TaskTable';
 
 export default function HomePage() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -74,9 +74,9 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-800 mb-6">AquaTodo</h1>
+          <h1 className="text-5xl font-bold text-gray-800 mb-6">AquaTodo - Your Personal Task Manager</h1>
           <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-            A simple, responsive, and visually appealing Todo application that helps you organize and manage your tasks efficiently.
+            All in one app to keep you daily life organized
           </p>
 
           {/* Features Section */}
@@ -109,7 +109,7 @@ export default function HomePage() {
           </div>
 
           {/* Task Management Dashboard */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 max-w-2xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">
               {isAuthenticated ? `Hello, ${user?.name || user?.email}!` : 'AquaTodo Dashboard'}
             </h2>
@@ -126,18 +126,27 @@ export default function HomePage() {
               </div>
             )}
 
-            <TaskForm onCreateTask={currentCreateTask} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Column - Task Table */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Your Tasks</h3>
+                <TaskTable
+                  tasks={displayTasks}
+                  loading={displayLoading}
+                  error={isAuthenticated ? apiError : null}
+                  onUpdateTask={currentUpdateTask}
+                  onToggleTask={currentToggleTask}
+                  onDeleteTask={currentDeleteTask}
+                />
+              </div>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Your Tasks</h3>
-              <TaskList
-                tasks={displayTasks}
-                loading={displayLoading}
-                error={isAuthenticated ? apiError : null}
-                onUpdateTask={currentUpdateTask}
-                onToggleTask={currentToggleTask}
-                onDeleteTask={currentDeleteTask}
-              />
+              {/* Right Column - Task Form */}
+              <div>
+                <div className="bg-white rounded-lg shadow p-6 sticky top-8">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Add New Task</h3>
+                  <TaskForm onCreateTask={currentCreateTask} />
+                </div>
+              </div>
             </div>
           </div>
 

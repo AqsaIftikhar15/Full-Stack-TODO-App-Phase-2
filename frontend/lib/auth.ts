@@ -43,11 +43,13 @@ class AuthManager {
   getCurrentUser(): User | null {
     if (typeof window !== 'undefined') {
       const userStr = localStorage.getItem('current_user');
-      if (userStr) {
+      if (userStr && userStr !== 'undefined' && userStr !== 'null') {
         try {
           return JSON.parse(userStr);
         } catch (e) {
           console.error('Error parsing current user from localStorage', e);
+          // Remove the corrupted data
+          localStorage.removeItem('current_user');
           return null;
         }
       }
@@ -82,8 +84,16 @@ class AuthManager {
 
     try {
       // JWT tokens have payload that includes expiration time
-      const payload = token.split('.')[1];
-      const decodedPayload = atob(payload);
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.warn('Invalid JWT token format');
+        return true;
+      }
+
+      const payload = parts[1];
+      // Decode base64url to base64
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decodedPayload = atob(base64);
       const parsedPayload = JSON.parse(decodedPayload);
 
       // Check if the token is expired (exp is in seconds)

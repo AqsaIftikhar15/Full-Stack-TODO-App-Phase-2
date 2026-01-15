@@ -1,22 +1,23 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { ToastProvider } from '../components/ui/ToastProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'AquaTodo - Your Personal Task Manager',
-  description: 'A simple, responsive, and visually appealing Todo application with secure authentication and task management',
+  description: 'All in one app to keep you daily life organized',
   openGraph: {
     title: 'AquaTodo - Your Personal Task Manager',
-    description: 'A simple, responsive, and visually appealing Todo application with secure authentication and task management',
+    description: 'All in one app to keep you daily life organized',
     type: 'website',
     siteName: 'AquaTodo',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AquaTodo - Your Personal Task Manager',
-    description: 'A simple, responsive, and visually appealing Todo application with secure authentication and task management',
+    description: 'All in one app to keep you daily life organized',
   },
 }
 
@@ -28,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-gradient-to-br from-bluish-50 to-purplish-50 min-h-screen`}>
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   )

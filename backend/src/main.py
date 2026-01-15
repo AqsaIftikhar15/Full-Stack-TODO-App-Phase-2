@@ -1,7 +1,20 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import SQLModel
 from .api.deps import get_db
 from .core.config import settings
+from .core.database import engine
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Create database tables
+    print("Initializing database tables...")
+    SQLModel.metadata.create_all(bind=engine)
+    print("Database tables initialized successfully!")
+    yield
+    # Shutdown: cleanup code would go here if needed
 
 
 def create_app() -> FastAPI:
@@ -27,6 +40,9 @@ def create_app() -> FastAPI:
     # Include API routes
     from .api.api_v1.api import api_router
     app.include_router(api_router, prefix=settings.API_V1_STR)
+
+    # Register lifespan event handler
+    app.lifespan = lifespan
 
     return app
 

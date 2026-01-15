@@ -4,16 +4,12 @@ from typing import Generator, Optional
 from jose import jwt, JWTError
 from datetime import datetime
 import uuid
-from ..core.database import get_db as get_db_session
+from ..core.database import get_db
 from ..core.config import settings
 from ..models.user import User
 from ..utils.jwt import verify_token
 
 
-def get_db() -> Generator[Session, None, None]:
-    """Dependency to get database session"""
-    with get_db_session() as session:
-        yield session
 
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:

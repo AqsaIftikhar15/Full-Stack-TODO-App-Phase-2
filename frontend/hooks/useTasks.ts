@@ -23,7 +23,7 @@ export const useTasks = (): UseTasksReturn => {
     error,
     isLoading,
     mutate,
-  } = useSWR(userId ? `/api/${userId}/tasks` : null, () => apiClient.getTasks(userId!).then(res => res.tasks));
+  } = useSWR(userId ? `/tasks/` : null, () => apiClient.getTasks().then(res => res.tasks));
 
   const [mutationLoading, setMutationLoading] = useState(false);
 
@@ -32,7 +32,7 @@ export const useTasks = (): UseTasksReturn => {
 
     setMutationLoading(true);
     try {
-      await apiClient.createTask(userId, { title, description });
+      await apiClient.createTask({ title, description });
       await mutate(); // Refresh the tasks list
     } catch (err) {
       console.error('Error creating task:', err);
@@ -47,7 +47,7 @@ export const useTasks = (): UseTasksReturn => {
 
     setMutationLoading(true);
     try {
-      await apiClient.updateTask(userId, id, { title, description });
+      await apiClient.updateTask(id, { title, description });
       await mutate(); // Refresh the tasks list
     } catch (err) {
       console.error('Error updating task:', err);
@@ -62,7 +62,7 @@ export const useTasks = (): UseTasksReturn => {
 
     setMutationLoading(true);
     try {
-      await apiClient.toggleTaskCompletion(userId, id);
+      await apiClient.toggleTaskCompletion(id);
       await mutate(); // Refresh the tasks list
     } catch (err) {
       console.error('Error toggling task completion:', err);
@@ -77,7 +77,7 @@ export const useTasks = (): UseTasksReturn => {
 
     setMutationLoading(true);
     try {
-      await apiClient.deleteTask(userId, id);
+      await apiClient.deleteTask(id);
       await mutate(); // Refresh the tasks list
     } catch (err) {
       console.error('Error deleting task:', err);

@@ -6,7 +6,7 @@ import { useTasks } from '../../hooks/useTasks';
 import { Task } from '../../lib/types';
 import Navbar from '../../components/ui/Navbar';
 import TaskForm from '../../components/ui/TaskForm';
-import TaskList from '../../components/ui/TaskList';
+import TaskTable from '../../components/ui/TaskTable';
 import Loader from '../../components/ui/Loader';
 
 const TasksPage: React.FC = () => {
@@ -73,36 +73,47 @@ const TasksPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-bluish-50 to-purplish-50">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-            {isAuthenticated ? `Hello, ${user?.name || user?.email}!` : 'AquaTodo'}
-          </h1>
-          <p className="text-center text-gray-600 mb-4">
-            {isAuthenticated
-              ? 'Here are your tasks'
-              : 'Manage your tasks - Login to save your tasks permanently'
-            }
-          </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {/* Left Column - Task Table */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              {isAuthenticated ? `Hello, ${user?.name || user?.email}!` : 'AquaTodo'}
+            </h1>
+            <p className="text-gray-600 mb-4">
+              {isAuthenticated
+                ? 'Here are your tasks'
+                : 'Manage your tasks - Login to save your tasks permanently'
+              }
+            </p>
 
-          {!isAuthenticated && (
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg mb-6 text-center">
-              <p className="font-medium">Note: Your tasks are temporary and will be lost when you refresh the page.</p>
-              <p className="mt-1">Login to save your tasks permanently.</p>
+            {!isAuthenticated && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg mb-6 text-center">
+                <p className="font-medium">Note: Your tasks are temporary and will be lost when you refresh the page.</p>
+                <p className="mt-1">Login to save your tasks permanently.</p>
+              </div>
+            )}
+
+            <div className="bg-white rounded-lg shadow">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Tasks</h2>
+                <TaskTable
+                  tasks={displayTasks}
+                  loading={displayLoading}
+                  error={error}
+                  onUpdateTask={currentUpdateTask}
+                  onToggleTask={currentToggleTask}
+                  onDeleteTask={currentDeleteTask}
+                />
+              </div>
             </div>
-          )}
+          </div>
 
-          <TaskForm onCreateTask={currentCreateTask} />
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Tasks</h2>
-            <TaskList
-              tasks={displayTasks}
-              loading={displayLoading}
-              error={error}
-              onUpdateTask={currentUpdateTask}
-              onToggleTask={currentToggleTask}
-              onDeleteTask={currentDeleteTask}
-            />
+          {/* Right Column - Task Form */}
+          <div>
+            <div className="bg-white rounded-lg shadow p-6 sticky top-8">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Add New Task</h2>
+              <TaskForm onCreateTask={currentCreateTask} />
+            </div>
           </div>
         </div>
       </div>

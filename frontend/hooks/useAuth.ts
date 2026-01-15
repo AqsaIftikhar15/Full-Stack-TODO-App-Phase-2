@@ -5,13 +5,17 @@ import { User } from '../lib/types';
 import { authManager } from '../lib/auth';
 import { apiClient } from '../lib/api';
 
+interface ShowToastFn {
+  (message: string, type: 'success' | 'error' | 'info'): void;
+}
+
 interface UseAuthReturn {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
+  login: (email: string, password: string, showToast?: ShowToastFn) => Promise<void>;
+  signup: (email: string, password: string, username: string, showToast?: ShowToastFn) => Promise<void>;
+  logout: (showToast?: ShowToastFn) => void;
   isAuthenticated: boolean;
 }
 
@@ -42,7 +46,7 @@ export const useAuth = (): UseAuthReturn => {
     checkAuthStatus();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, showToast?: ShowToastFn) => {
     setLoading(true);
     setError(null);
 
@@ -50,10 +54,15 @@ export const useAuth = (): UseAuthReturn => {
       const response = await apiClient.login({ email, password });
 
       // Store token and user
-      authManager.setToken(response.token);
+      authManager.setToken(response.access_token);
       authManager.setCurrentUser(response.user);
 
       setUser(response.user);
+
+      // Show success notification if toast function is provided
+      if (showToast) {
+        showToast('Logged in successfully!', 'success');
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed');
       throw err;
@@ -62,12 +71,12 @@ export const useAuth = (): UseAuthReturn => {
     }
   }, []);
 
-  const signup = useCallback(async (email: string, password: string, name: string) => {
+  const signup = useCallback(async (email: string, password: string, username: string, showToast?: ShowToastFn) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await apiClient.signup({ email, password, name });
+      const response = await apiClient.signup({ email, password, username });
 
       // Store token and user
       authManager.setToken(response.token);
@@ -82,10 +91,15 @@ export const useAuth = (): UseAuthReturn => {
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback((showToast?: ShowToastFn) => {
     // Clear auth state
     authManager.logout();
     setUser(null);
+
+    // Show success notification if toast function is provided
+    if (showToast) {
+      showToast('Logged out successfully!', 'success');
+    }
   }, []);
 
   const isAuthenticated = authManager.isAuthenticated() && !authManager.isTokenExpired();
