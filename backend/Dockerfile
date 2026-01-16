@@ -18,12 +18,12 @@ COPY ./src /app/src
 # Copy initialization script
 COPY initialize_db.py /app/
 
-# Copy .env file
-COPY .env /app/.env
-
-# Expose port
-EXPOSE 8000
-
-# Set PYTHONPATH and run the application
+   # Set PYTHONPATH
 ENV PYTHONPATH=/app
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  # Create a startup script that properly uses the PORT environment variable
+EXPOSE 7860
+EXPOSE 8080
+
+  # Start with default port for Hugging Face Spaces
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
