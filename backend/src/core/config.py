@@ -20,9 +20,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-# Parse CORS origins from environment variable if it's a string
-if os.getenv("ALLOWED_ORIGINS"):
-    # Split comma-separated origins and convert to list
-    origins_str = os.getenv("ALLOWED_ORIGINS", "")
-    settings.BACKEND_CORS_ORIGINS = [origin.strip() for origin in origins_str.split(",") if origin.strip()]

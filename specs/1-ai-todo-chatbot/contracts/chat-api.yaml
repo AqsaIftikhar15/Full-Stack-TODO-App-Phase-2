@@ -1,0 +1,285 @@
+openapi: 3.0.0
+info:
+  title: AI Todo Chatbot API
+  description: API for the AI-powered Todo Chatbot feature
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Send a message to the AI chatbot
+      description: Processes a natural language message and returns AI-generated response with potential task operations
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The authenticated user's ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: The user's message to the chatbot
+                  maxLength: 500
+                  example: "Add a task to buy groceries"
+              required:
+                - message
+      responses:
+        '200':
+          description: Successful response from the AI chatbot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                    description: The AI-generated response to the user
+                    example: "I've added the task 'buy groceries' to your list."
+                  tool_calls:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: The name of the MCP tool called
+                          enum: [add_task, list_tasks, update_task, complete_task, delete_task]
+                        parameters:
+                          type: object
+                          description: Parameters passed to the tool
+                    example: [{"name": "add_task", "parameters": {"title": "buy groceries"}}]
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Message exceeds 500 character limit"
+        '401':
+          description: Unauthorized - invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid or expired JWT token"
+        '429':
+          description: Too many requests - concurrent request limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Maximum of 3 concurrent AI requests exceeded"
+        '500':
+          description: Internal server error - AI service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "AI service temporarily unavailable"
+      security:
+        - BearerAuth: []
+
+  /api/{user_id}/tasks:
+    get:
+      summary: Get user's tasks
+      description: Retrieve all tasks for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The authenticated user's ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of user's tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+
+    post:
+      summary: Create a new task
+      description: Create a new task for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The authenticated user's ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the task
+        user_id:
+          type: string
+          format: uuid
+          description: ID of the user who owns the task
+        title:
+          type: string
+          maxLength: 255
+          description: Task title
+        description:
+          type: string
+          description: Optional task description
+        status:
+          type: string
+          enum: [active, completed]
+          description: Current status of the task
+        priority:
+          type: integer
+          description: Task priority level
+        due_date:
+          type: string
+          format: date-time
+          description: Optional due date for the task
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when task was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when task was last updated
+        completed_at:
+          type: string
+          format: date-time
+          description: Timestamp when task was completed (null if active)
+      required:
+        - id
+        - user_id
+        - title
+        - status
+        - created_at
+        - updated_at
+
+    TaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          description: Task title
+        description:
+          type: string
+          description: Optional task description
+        priority:
+          type: integer
+          description: Task priority level (default 0)
+        due_date:
+          type: string
+          format: date-time
+          description: Optional due date for the task
+      required:
+        - title
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the message
+        conversation_id:
+          type: string
+          format: uuid
+          description: ID of the conversation this message belongs to
+        user_id:
+          type: string
+          format: uuid
+          description: ID of the user who sent the message
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Role of the message sender
+        content:
+          type: string
+          maxLength: 500
+          description: Content of the message
+        tool_calls:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the tool called
+              parameters:
+                type: object
+                description: Parameters passed to the tool
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when message was created
+      required:
+        - id
+        - conversation_id
+        - user_id
+        - role
+        - content
+        - created_at

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from './ToastProvider';
+import TaskMateChatbot from './TaskMateChatbot';
 
 const Navbar: React.FC = () => {
   const { user, loading, logout, isAuthenticated } = useAuth();
@@ -55,6 +56,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+      <TaskMateChatbot />
     </nav>
   );
 };

@@ -1,14 +1,14 @@
 import { Task, User } from './types';
 
-// Base API URL from environment
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+// Base API URL from environment (does not include /api/v1 - that's added in the request method)
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 // API Client with JWT token attachment
 class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = API_BASE_URL;
+    this.baseUrl = `${API_BASE_URL}/api/v1`;
   }
 
   // Helper method to get JWT token from wherever it's stored
