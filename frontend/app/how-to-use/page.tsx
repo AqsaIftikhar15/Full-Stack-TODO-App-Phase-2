@@ -16,40 +16,40 @@ export default function HowToUsePage() {
               <section className="mb-10">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">What is AquaTodo?</h2>
                 <p className="text-gray-600 mb-4">
-                  AquaTodo is a simple, responsive, and visually appealing Todo application that helps you organize and manage your tasks efficiently.
-                  You can use it right away without signing up, or create an account to save your tasks permanently.
+                  AquaTodo is a simple, responsive Todo application that helps you organize and manage your tasks efficiently.
+                  You can use it without signing up or create an account to save your tasks permanently.
                 </p>
                 <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4">
                   <p className="font-medium">Note: Tasks created without logging in are temporary and will be lost when you refresh the page.</p>
-                  <p className="mt-2">Sign up and log in to save your tasks permanently and access them from any device.</p>
+                  <p className="mt-2">Sign up to save your tasks permanently and access them from any device.</p>
                 </div>
               </section>
 
               <section className="mb-10">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">How to Use Without Login</h2>
                 <p className="text-gray-600 mb-4">
-                  You can start using AquaTodo immediately without creating an account. Your tasks will be stored temporarily in your browser.
+                  Start using AquaTodo immediately without an account. Your tasks will be stored temporarily in your browser.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start">
                     <div className="bg-bluish-100 text-bluish-700 rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 mt-1">1</div>
                     <div>
-                      <h3 className="font-semibold text-gray-800">Visit the Tasks Page</h3>
+                      <h3 className="font-semibold text-gray-800">Visit Tasks Page</h3>
                       <p className="text-gray-600">Go to the Tasks page to start managing your tasks without logging in.</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <div className="bg-bluish-100 text-bluish-700 rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 mt-1">2</div>
                     <div>
-                      <h3 className="font-semibold text-gray-800">Add Temporary Tasks</h3>
+                      <h3 className="font-semibold text-gray-800">Add Tasks</h3>
                       <p className="text-gray-600">Create tasks that will be stored in your browser until you refresh the page.</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <div className="bg-bluish-100 text-bluish-700 rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 mt-1">3</div>
                     <div>
-                      <h3 className="font-semibold text-gray-800">Manage Your Tasks</h3>
-                      <p className="text-gray-600">You can update, delete, and mark tasks as complete or incomplete.</p>
+                      <h3 className="font-semibold text-gray-800">Manage Tasks</h3>
+                      <p className="text-gray-600">Update, delete, and mark tasks as complete or incomplete.</p>
                     </div>
                   </div>
                 </div>
@@ -58,14 +58,13 @@ export default function HowToUsePage() {
               <section className="mb-10">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Why Login/Signup is Recommended</h2>
                 <p className="text-gray-600 mb-4">
-                  Creating an account provides several benefits that enhance your task management experience:
+                  Creating an account enhances your task management experience:
                 </p>
                 <ul className="list-disc list-inside text-gray-600 space-y-2 mb-4">
                   <li>Permanent storage of your tasks</li>
-                  <li>Access to your tasks from any device</li>
-                  <li>Secure and private task management</li>
-                  <li>Sync across multiple sessions</li>
-                  <li>Backup of your important tasks</li>
+                  <li>Access from any device</li>
+                  <li>Secure task management</li>
+                  <li>Sync across sessions</li>
                 </ul>
               </section>
 
@@ -77,19 +76,19 @@ export default function HowToUsePage() {
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">1</div>
-                      <p className="text-gray-600">Click on the "Sign Up" button in the navigation bar or on the landing page</p>
+                      <p className="text-gray-600">Click on the "Sign Up" button in the navigation bar</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">2</div>
-                      <p className="text-gray-600">Enter your full name, email address, and create a password</p>
+                      <p className="text-gray-600">Enter your name, email, and create a password</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">3</div>
-                      <p className="text-gray-600">Click "Create Account" to complete the registration process</p>
+                      <p className="text-gray-600">Click "Create Account" to complete registration</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">4</div>
-                      <p className="text-gray-600">You'll be automatically redirected to the Tasks page to start managing your tasks</p>
+                      <p className="text-gray-600">You'll be redirected to the Tasks page</p>
                     </div>
                   </div>
                 </div>
@@ -99,7 +98,7 @@ export default function HowToUsePage() {
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">1</div>
-                      <p className="text-gray-600">Click on the "Login" button in the navigation bar or on the landing page</p>
+                      <p className="text-gray-600">Click on the "Login" button in the navigation bar</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">2</div>
@@ -107,7 +106,7 @@ export default function HowToUsePage() {
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">3</div>
-                      <p className="text-gray-600">Click "Login to Account" to access your saved tasks</p>
+                      <p className="text-gray-600">Click "Login to Account" to access your tasks</p>
                     </div>
                   </div>
                 </div>
@@ -117,7 +116,7 @@ export default function HowToUsePage() {
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">1</div>
-                      <p className="text-gray-600">Navigate to the Tasks page (either logged in or not)</p>
+                      <p className="text-gray-600">Go to the Tasks page</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">2</div>
@@ -125,11 +124,11 @@ export default function HowToUsePage() {
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">3</div>
-                      <p className="text-gray-600">Optionally add a description in the "Description" field</p>
+                      <p className="text-gray-600">Add an optional description</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">4</div>
-                      <p className="text-gray-600">Click "Add Task" to save your new task</p>
+                      <p className="text-gray-600">Click "Add Task" to save</p>
                     </div>
                   </div>
                 </div>
@@ -139,15 +138,15 @@ export default function HowToUsePage() {
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">1</div>
-                      <p className="text-gray-600">Find the task you want to update in your task list</p>
+                      <p className="text-gray-600">Find the task you want to update</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">2</div>
-                      <p className="text-gray-600">Click the "Edit" button next to the task</p>
+                      <p className="text-gray-600">Click the "Edit" button</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">3</div>
-                      <p className="text-gray-600">Modify the title or description as needed</p>
+                      <p className="text-gray-600">Modify the title or description</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">4</div>
@@ -161,15 +160,15 @@ export default function HowToUsePage() {
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">1</div>
-                      <p className="text-gray-600">Find the task you want to delete in your task list</p>
+                      <p className="text-gray-600">Find the task you want to delete</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">2</div>
-                      <p className="text-gray-600">Click the "Delete" button next to the task</p>
+                      <p className="text-gray-600">Click the "Delete" button</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">3</div>
-                      <p className="text-gray-600">Confirm the deletion if prompted</p>
+                      <p className="text-gray-600">Confirm the deletion</p>
                     </div>
                   </div>
                 </div>
@@ -179,15 +178,38 @@ export default function HowToUsePage() {
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">1</div>
-                      <p className="text-gray-600">Find the task you want to mark in your task list</p>
+                      <p className="text-gray-600">Find the task you want to mark</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">2</div>
-                      <p className="text-gray-600">Click the checkbox next to the task title to toggle its completion status</p>
+                      <p className="text-gray-600">Click the checkbox to toggle completion status</p>
                     </div>
                     <div className="flex items-start">
                       <div className="bg-purplish-100 text-purplish-700 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-1 text-sm">3</div>
-                      <p className="text-gray-600">Completed tasks will be visually marked with a strikethrough</p>
+                      <p className="text-gray-600">Completed tasks will have a strikethrough</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="mb-10">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4">TaskMate AI Assistant</h2>
+                <p className="text-gray-600 mb-4">
+                  Meet TaskMate, your AI-powered assistant! Located in the top-right corner of the screen, TaskMate allows you to manage your tasks using natural language commands.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="bg-bluish-100 text-bluish-700 rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 mt-1">1</div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">How to Use TaskMate</h3>
+                      <p className="text-gray-600">Click the robot icon in the top-right corner to open the chatbot. You can then ask TaskMate to:</p>
+                      <ul className="list-disc list-inside mt-2 text-gray-600 space-y-1">
+                        <li>Create tasks (e.g., "Create a task called 'Buy groceries'")</li>
+                        <li>Update tasks (e.g., "Update the task 'Buy groceries' to 'Buy food items'")</li>
+                        <li>Delete tasks (e.g., "Delete the task 'Buy groceries'")</li>
+                        <li>Mark tasks as completed (e.g., "Mark 'Buy groceries' as complete")</li>
+                        <li>Show all tasks (e.g., "Show me all my tasks")</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -197,7 +219,7 @@ export default function HowToUsePage() {
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Important Information</h2>
                 <p className="text-gray-600 mb-4">
                   Tasks are saved permanently ONLY after you log in to your account. When using the app without logging in,
-                  your tasks are stored temporarily in your browser and will be lost when you refresh the page or close the browser.
+                  your tasks are stored temporarily in your browser and will be lost when you refresh the page.
                 </p>
                 <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
                   <p className="font-medium">Recommendation:</p>

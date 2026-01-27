@@ -8,6 +8,8 @@ from sqlmodel import SQLModel
 from src.core.database import engine
 from src.models.user import User
 from src.models.task import Task
+from src.models.conversation import Conversation
+from src.models.message import Message
 
 def create_tables():
     """Create all tables in the database."""
@@ -20,6 +22,8 @@ def create_tables():
     print("Tables created:")
     print("- users")
     print("- tasks")
+    print("- conversations")
+    print("- messages")
 
 if __name__ == "__main__":
     create_tables()

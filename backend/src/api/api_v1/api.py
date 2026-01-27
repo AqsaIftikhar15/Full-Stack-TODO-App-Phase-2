@@ -11,5 +11,10 @@ def health_check():
 # Include auth routes
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 
-# Include task routes
+# Include task routes - keeping for backward compatibility
 api_router.include_router(tasks_router, prefix="/tasks", tags=["tasks"])
+
+# Include user-specific routes (according to constitution: /api/v1/{user_id}/chat)
+# Mounting the user router without prefix so paths become /api/v1/{user_id}/...
+from .user_routes import router as user_router
+api_router.include_router(user_router)
