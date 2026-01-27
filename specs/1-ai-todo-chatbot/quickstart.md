@@ -28,7 +28,6 @@ BETTER_AUTH_SECRET="your_auth_secret_here"
 BETTER_AUTH_URL="http://localhost:8000"
 
 # AI Service Configuration
-COHERE_API_KEY="LXy16tK2MP3C1vK6POx9RsB19xLdLJDkJe2EGNy5"
 OPENAI_API_BASE="https://api.cohere.ai/v1"  # For OpenAI-compatible endpoint
 
 # Application Settings

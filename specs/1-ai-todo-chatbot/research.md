@@ -10,7 +10,7 @@ This document resolves the unknowns identified in the implementation plan for th
 
 ### RF-001: Cohere API Configuration
 - **Decision**: Use Cohere API with OpenAI-compatible endpoint for AI execution
-- **Rationale**: The provided COHERE_API_KEY (LXy16tK2MP3C1vK6POx9RsB19xLdLJDkJe2EGNy5) suggests using Cohere's OpenAI-compatible endpoint, which allows using OpenAI Agents SDK with Cohere as the backend provider
+- **Rationale**: The provided COHERE_API_KEY  suggests using Cohere's OpenAI-compatible endpoint, which allows using OpenAI Agents SDK with Cohere as the backend provider
 - **Implementation approach**: Configure OpenAI SDK to use Cohere's API endpoint with the provided key
 - **Alternatives considered**:
   - Direct OpenAI API: Would require different API key

@@ -91,7 +91,6 @@ AI & Agent constraints:
 - User identity resolved via existing authentication (user_id/email)
 
 Environment & configuration:
-- COHERE_API_KEY = LXy16tK2MP3C1vK6POx9RsB19xLdLJDkJe2EGNy5 must be used for AI execution
 - All other backend and frontend environment variables already exist
 - No new environment variables unless explicitly required by spec
 
