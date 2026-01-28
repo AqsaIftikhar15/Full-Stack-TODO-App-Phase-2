@@ -107,9 +107,8 @@ const TaskMateChatbot: React.FC = () => {
         throw new Error('Invalid authentication token. Please log in again.');
       }
 
-      // Since the environment variable is not available during build time in Docker,
-      // use the known backend URL directly to ensure it resolves to http://localhost:8000/api/v1/{user_id}/chat
-      const apiBaseUrl = 'http://localhost:8000';
+      // Use environment variable for API base URL, fallback to localhost for development
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
       // Ensure the base URL doesn't end with a slash to avoid double slashes
       const normalizedBaseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl.slice(0, -1) : apiBaseUrl;
