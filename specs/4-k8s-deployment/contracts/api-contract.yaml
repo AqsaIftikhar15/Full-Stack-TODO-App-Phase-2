@@ -1,0 +1,177 @@
+# API Contract for Todo Chatbot Deployment
+# Defines the expected interfaces for the deployed services
+
+openapi: 3.0.0
+info:
+  title: Todo Chatbot API
+  version: 1.0.0
+  description: API contract for the deployed Todo Chatbot application
+
+servers:
+  - url: http://localhost:{port}
+    description: Local Kubernetes deployment via NodePort
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    example: "2026-01-29T10:00:00Z"
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "unhealthy"
+                  error:
+                    type: string
+                    example: "Database connection failed"
+
+  /api/{user_id}/tasks:
+    get:
+      summary: Get user's tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of user's tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Create a new task
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/{user_id}/chat:
+    post:
+      summary: Chat with the Todo AI assistant
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: User's message to the AI assistant
+      responses:
+        '200':
+          description: AI response and potential tool calls
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                    description: AI's response to the user
+                  tool_calls:
+                    type: array
+                    items:
+                      type: object
+                      description: MCP tool calls to execute
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the task
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Optional task description
+        completed:
+          type: boolean
+          description: Whether the task is completed
+        created_at:
+          type: string
+          format: date-time
+          description: When the task was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the task was last updated
+
+    TaskInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Optional task description
+
+  responses:
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Unauthorized"
