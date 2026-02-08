@@ -1,0 +1,370 @@
+# API Contracts: Todo Advanced Features
+
+## Extended Task Endpoints
+
+### POST /api/tasks
+Create a new task with advanced features
+
+**Request Body**:
+```json
+{
+  "title": "Task title",
+  "description": "Task description (optional)",
+  "priority": "medium",
+  "tags": ["work", "important"],
+  "due_date": "2023-12-31T10:00:00Z",
+  "reminder_config": {
+    "enabled": true,
+    "notify_before": 30,
+    "method": "push"
+  },
+  "recurrence_rule": {
+    "enabled": false,
+    "pattern": "daily",
+    "interval_days": 1,
+    "ends_on": "2024-12-31T10:00:00Z",
+    "occurrences_count": 10
+  }
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "id": "task-id-uuid",
+  "title": "Task title",
+  "description": "Task description (optional)",
+  "status": "pending",
+  "priority": "medium",
+  "tags": ["work", "important"],
+  "due_date": "2023-12-31T10:00:00Z",
+  "reminder_config": {
+    "enabled": true,
+    "notify_before": 30,
+    "method": "push"
+  },
+  "recurrence_rule": {
+    "enabled": false,
+    "pattern": "daily",
+    "interval_days": 1,
+    "ends_on": "2024-12-31T10:00:00Z",
+    "occurrences_count": 10
+  },
+  "created_at": "2023-10-01T10:00:00Z",
+  "updated_at": "2023-10-01T10:00:00Z"
+}
+```
+
+### PUT /api/tasks/{task_id}
+Update an existing task with advanced features
+
+**Request Body** (all fields optional):
+```json
+{
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "priority": "high",
+  "tags": ["work", "urgent"],
+  "due_date": "2023-12-31T10:00:00Z",
+  "reminder_config": {
+    "enabled": true,
+    "notify_before": 60,
+    "method": "email"
+  },
+  "recurrence_rule": {
+    "enabled": true,
+    "pattern": "weekly",
+    "interval_days": 7,
+    "ends_on": "2024-12-31T10:00:00Z",
+    "occurrences_count": 5
+  },
+  "status": "pending"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "id": "task-id-uuid",
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "status": "pending",
+  "priority": "high",
+  "tags": ["work", "urgent"],
+  "due_date": "2023-12-31T10:00:00Z",
+  "reminder_config": {
+    "enabled": true,
+    "notify_before": 60,
+    "method": "email"
+  },
+  "recurrence_rule": {
+    "enabled": true,
+    "pattern": "weekly",
+    "interval_days": 7,
+    "ends_on": "2024-12-31T10:00:00Z",
+    "occurrences_count": 5
+  },
+  "created_at": "2023-10-01T10:00:00Z",
+  "updated_at": "2023-10-02T15:30:00Z"
+}
+```
+
+### GET /api/tasks
+Retrieve tasks with advanced filtering and sorting
+
+**Query Parameters**:
+- `priority`: Filter by priority (low, medium, high)
+- `tag`: Filter by tag (can be used multiple times)
+- `status`: Filter by status (pending, completed, archived)
+- `due_date_from`: Filter tasks with due date after this date
+- `due_date_to`: Filter tasks with due date before this date
+- `sort_by`: Sort by field (created_at, updated_at, due_date, priority)
+- `order`: Sort order (asc, desc)
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+
+**Response** (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": "task-id-uuid",
+      "title": "Task title",
+      "description": "Task description",
+      "status": "pending",
+      "priority": "high",
+      "tags": ["work", "urgent"],
+      "due_date": "2023-12-31T10:00:00Z",
+      "reminder_config": {
+        "enabled": true,
+        "notify_before": 30,
+        "method": "push"
+      },
+      "recurrence_rule": {
+        "enabled": false,
+        "pattern": "daily",
+        "interval_days": 1,
+        "ends_on": "2024-12-31T10:00:00Z",
+        "occurrences_count": 10
+      },
+      "created_at": "2023-10-01T10:00:00Z",
+      "updated_at": "2023-10-01T10:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "pages": 8
+  }
+}
+```
+
+## New Search Endpoint
+
+### GET /api/tasks/search
+Search tasks by keywords
+
+**Query Parameters**:
+- `q`: Search query string
+- `priority`: Filter by priority (optional)
+- `tag`: Filter by tag (optional, can be used multiple times)
+- `status`: Filter by status (optional)
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+
+**Response** (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": "task-id-uuid",
+      "title": "Task title matching query",
+      "description": "Task description with matching text",
+      "status": "pending",
+      "priority": "medium",
+      "tags": ["work"],
+      "due_date": "2023-12-31T10:00:00Z",
+      "created_at": "2023-10-01T10:00:00Z",
+      "updated_at": "2023-10-01T10:00:00Z",
+      "relevance_score": 0.95
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 5,
+    "pages": 1
+  }
+}
+```
+
+## Task-Specific Endpoints
+
+### PUT /api/tasks/{task_id}/complete
+Mark a task as complete
+
+**Response** (200 OK):
+```json
+{
+  "id": "task-id-uuid",
+  "status": "completed",
+  "updated_at": "2023-10-02T10:00:00Z"
+}
+```
+
+### PUT /api/tasks/{task_id}/archive
+Archive a completed task
+
+**Response** (200 OK):
+```json
+{
+  "id": "task-id-uuid",
+  "status": "archived",
+  "updated_at": "2023-10-02T10:00:00Z"
+}
+```
+
+### POST /api/tasks/{task_id}/reminder
+Configure reminder for a task
+
+**Request Body**:
+```json
+{
+  "enabled": true,
+  "notify_before": 60,
+  "method": "email"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "task_id": "task-id-uuid",
+  "reminder_config": {
+    "enabled": true,
+    "notify_before": 60,
+    "method": "email"
+  },
+  "updated_at": "2023-10-02T10:00:00Z"
+}
+```
+
+### GET /api/tasks/{task_id}/reminder
+Get reminder configuration for a task
+
+**Response** (200 OK):
+```json
+{
+  "task_id": "task-id-uuid",
+  "reminder_config": {
+    "enabled": true,
+    "notify_before": 30,
+    "method": "push"
+  }
+}
+```
+
+### POST /api/tasks/{task_id}/recurrence
+Configure recurrence for a task
+
+**Request Body**:
+```json
+{
+  "enabled": true,
+  "pattern": "weekly",
+  "interval_days": 7,
+  "ends_on": "2024-12-31T10:00:00Z",
+  "occurrences_count": 10
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "task_id": "task-id-uuid",
+  "recurrence_rule": {
+    "enabled": true,
+    "pattern": "weekly",
+    "interval_days": 7,
+    "ends_on": "2024-12-31T10:00:00Z",
+    "occurrences_count": 10
+  },
+  "updated_at": "2023-10-02T10:00:00Z"
+}
+```
+
+### GET /api/tasks/{task_id}/recurrence
+Get recurrence configuration for a task
+
+**Response** (200 OK):
+```json
+{
+  "task_id": "task-id-uuid",
+  "recurrence_rule": {
+    "enabled": true,
+    "pattern": "daily",
+    "interval_days": 1,
+    "ends_on": "2024-12-31T10:00:00Z",
+    "occurrences_count": 30
+  }
+}
+```
+
+### GET /api/tasks/{task_id}/activity
+Get activity log for a task
+
+**Query Parameters**:
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+
+**Response** (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": "activity-id-uuid",
+      "task_id": "task-id-uuid",
+      "operation": "UPDATE",
+      "timestamp": "2023-10-02T10:00:00Z",
+      "user_id": "user-id-uuid",
+      "previous_state": {
+        "status": "pending"
+      },
+      "changes": {
+        "status": "completed"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 5,
+    "pages": 1
+  }
+}
+```
+
+## Error Responses
+
+Standard error response format for all endpoints:
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Detailed error message",
+    "details": [
+      {
+        "field": "field_name",
+        "issue": "specific issue with the field"
+      }
+    ]
+  }
+}
+```
+
+### Common Error Codes
+- `VALIDATION_ERROR`: Request data failed validation
+- `RESOURCE_NOT_FOUND`: Requested resource does not exist
+- `UNAUTHORIZED`: User not authorized for the action
+- `INTERNAL_ERROR`: Server-side error occurred
