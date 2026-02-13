@@ -5,6 +5,11 @@ from sqlmodel import SQLModel
 from .api.deps import get_db
 from .core.config import settings
 from .core.database import engine
+from .models.user import User
+from .models.task import Task
+from .models.conversation import Conversation
+from .models.message import Message
+from .models.activity_log import ActivityLog
 
 
 @asynccontextmanager

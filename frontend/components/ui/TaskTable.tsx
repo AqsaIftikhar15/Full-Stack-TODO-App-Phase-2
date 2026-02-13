@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Task } from '../../lib/types';
 
@@ -8,7 +9,7 @@ interface TaskTableProps {
   tasks: Task[];
   loading: boolean;
   error: string | null;
-  onUpdateTask?: (id: string, title: string, description?: string) => void;
+  onUpdateTask?: (id: string, title?: string, description?: string, priority?: 'low' | 'medium' | 'high', tags?: string[], dueDate?: string | Date, reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }, status?: 'pending' | 'completed' | 'archived') => Promise<void>;
   onToggleTask?: (id: string) => void;
   onDeleteTask?: (id: string) => void;
 }
@@ -47,10 +48,33 @@ const TaskTable: React.FC<TaskTableProps> = ({
     setEditDescription(task.description || '');
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingTaskId && onUpdateTask) {
-      onUpdateTask(editingTaskId, editTitle, editDescription);
-      setEditingTaskId(null);
+      // For now, we'll only update the title and description
+      // In a full implementation, we would also allow editing of priority, tags, etc.
+      try {
+        // Find the current task to preserve other fields
+        const currentTask = tasks.find(task => task.id === editingTaskId);
+
+        if (currentTask) {
+          await onUpdateTask(
+            editingTaskId,
+            editTitle,
+            editDescription,
+            currentTask.priority,
+            currentTask.tags,
+            currentTask.dueDate,
+            currentTask.reminderConfig,
+            currentTask.recurrenceRule,
+            currentTask.status
+          );
+        } else {
+          await onUpdateTask(editingTaskId, editTitle, editDescription);
+        }
+        setEditingTaskId(null);
+      } catch (error) {
+        console.error('Error updating task:', error);
+      }
     }
   };
 
@@ -96,7 +120,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -176,6 +200,52 @@ const TaskTable: React.FC<TaskTableProps> = ({
                           {task.description}
                         </div>
                       )}
+
+                      {/* Display task priority */}
+                      {task.priority && (
+                        <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
+                          task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-green-100 text-green-800'
+                        }`}>
+                          {task.priority}
+                        </span>
+                      )}
+
+                      {/* Display task tags */}
+                      {task.tags && task.tags.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {task.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Display due date */}
+                      {task.dueDate && (
+                        <div className="mt-1 text-xs text-gray-500 flex items-center">
+                          <span>📅 Due: {formatDate(task.dueDate)}</span>
+                        </div>
+                      )}
+
+                      {/* Display reminder status */}
+                      {task.reminderConfig && task.reminderConfig.enabled && (
+                        <div className="mt-1 text-xs text-gray-500 flex items-center">
+                          <span>🔔 Reminder: {task.reminderConfig.notifyBefore} min {task.reminderConfig.method}</span>
+                        </div>
+                      )}
+
+                      {/* Display recurrence status */}
+                      {task.recurrenceRule && task.recurrenceRule.enabled && (
+                        <div className="mt-1 text-xs text-gray-500 flex items-center">
+                          <span>🔄 Recurs: {task.recurrenceRule.pattern}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </td>
@@ -185,6 +255,11 @@ const TaskTable: React.FC<TaskTableProps> = ({
                 <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                   {editingTaskId !== task.id && (
                     <div className="flex justify-end space-x-2">
+                      <Link href={`/tasks/${task.id}`}
+                        className="text-sm px-2 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition"
+                      >
+                        View Details
+                      </Link>
                       <button
                         onClick={() => startEditing(task)}
                         className="text-sm px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"

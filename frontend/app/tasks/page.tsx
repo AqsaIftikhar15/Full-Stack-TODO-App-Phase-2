@@ -22,7 +22,15 @@ const TasksPage: React.FC = () => {
   const displayLoading = isAuthenticated ? tasksLoading : tempLoading;
 
   // Handle temporary tasks for non-authenticated users
-  const handleCreateTempTask = (title: string, description?: string) => {
+  const handleCreateTempTask = async (
+    title: string,
+    description?: string,
+    priority?: 'low' | 'medium' | 'high',
+    tags?: string[],
+    dueDate?: string | Date,
+    reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' },
+    recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }
+  ): Promise<void> => {
     const newTask: Task = {
       id: Date.now().toString(),
       title,
@@ -31,21 +39,48 @@ const TasksPage: React.FC = () => {
       userId: 'guest',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      priority: priority || 'medium',
+      tags: tags || [],
+      dueDate: dueDate ? (typeof dueDate === 'string' ? dueDate : new Date(dueDate).toISOString()) : undefined,
+      reminderConfig: reminderConfig || { enabled: false, notifyBefore: 15, method: 'push' },
+      recurrenceRule: recurrenceRule || { enabled: false, pattern: 'daily', endsOn: undefined },
+      status: 'pending'
     };
     setTempTasks(prev => [...prev, newTask]);
   };
 
-  const handleUpdateTempTask = (id: string, title: string, description?: string) => {
+  const handleUpdateTempTask = async (
+    id: string,
+    title?: string,
+    description?: string,
+    priority?: 'low' | 'medium' | 'high',
+    tags?: string[],
+    dueDate?: string | Date,
+    reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' },
+    recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number },
+    status?: 'pending' | 'completed' | 'archived'
+  ): Promise<void> => {
     setTempTasks(prev =>
       prev.map(task =>
         task.id === id
-          ? { ...task, title, description: description || task.description, updatedAt: new Date().toISOString() }
+          ? {
+              ...task,
+              title: title || task.title,
+              description: description || task.description,
+              priority: priority || task.priority,
+              tags: tags || task.tags,
+              dueDate: dueDate || task.dueDate,
+              reminderConfig: reminderConfig || task.reminderConfig,
+              recurrenceRule: recurrenceRule || task.recurrenceRule,
+              status: status || task.status,
+              updatedAt: new Date().toISOString()
+            }
           : task
       )
     );
   };
 
-  const handleToggleTempTask = (id: string) => {
+  const handleToggleTempTask = async (id: string): Promise<void> => {
     setTempTasks(prev =>
       prev.map(task =>
         task.id === id
@@ -55,15 +90,25 @@ const TasksPage: React.FC = () => {
     );
   };
 
-  const handleDeleteTempTask = (id: string) => {
+  const handleDeleteTempTask = async (id: string): Promise<void> => {
     setTempTasks(prev => prev.filter(task => task.id !== id));
   };
 
   // Determine which functions to use based on authentication status
-  const currentCreateTask = isAuthenticated ? createTask : handleCreateTempTask;
-  const currentUpdateTask = isAuthenticated ? updateTask : handleUpdateTempTask;
-  const currentToggleTask = isAuthenticated ? toggleTaskCompletion : handleToggleTempTask;
-  const currentDeleteTask = isAuthenticated ? deleteTask : handleDeleteTempTask;
+  const currentCreateTask = isAuthenticated 
+    ? (title: string, description?: string, priority?: 'low' | 'medium' | 'high', tags?: string[], dueDate?: string | Date, reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }) => 
+        createTask(title, description, priority, tags, dueDate, reminderConfig, recurrenceRule)
+    : handleCreateTempTask;
+  const currentUpdateTask = isAuthenticated
+    ? (id: string, title?: string, description?: string, priority?: 'low' | 'medium' | 'high', tags?: string[], dueDate?: string | Date, reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }, status?: 'pending' | 'completed' | 'archived') => 
+        updateTask(id, title, description, priority, tags, dueDate, reminderConfig, recurrenceRule, status)
+    : handleUpdateTempTask;
+  const currentToggleTask = isAuthenticated 
+    ? (id: string) => toggleTaskCompletion(id)
+    : handleToggleTempTask;
+  const currentDeleteTask = isAuthenticated 
+    ? (id: string) => deleteTask(id)
+    : handleDeleteTempTask;
 
   if (authLoading) {
     return <Loader text="Loading..." />;

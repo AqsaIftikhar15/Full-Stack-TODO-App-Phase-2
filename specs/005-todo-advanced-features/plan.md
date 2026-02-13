@@ -215,6 +215,9 @@ Activity Log -> GET /tasks/{id}/activity -> Activity retrieval -> Activity timel
 - Create clear interfaces for agent integration
 - Document event triggers for future automation
 
+### Phase V.1 Focus Note
+Phase V.1 focuses on functional correctness and contract definitions; Phase V.2 will handle infra-level event orchestration with Kafka and Dapr.
+
 ## Agent Context Update
 
 The following technology has been added to prepare the agent for implementation:

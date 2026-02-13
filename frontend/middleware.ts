@@ -5,7 +5,8 @@ export function middleware(request: NextRequest) {
   // Define protected routes that require authentication
   const protectedPaths = ['/tasks', '/profile'];
   const isProtectedPath = protectedPaths.some(path =>
-    request.nextUrl.pathname.startsWith(path)
+    request.nextUrl.pathname.startsWith(path) || 
+    request.nextUrl.pathname.startsWith('/tasks/')
   );
 
   // Check if user is authenticated by looking for auth token

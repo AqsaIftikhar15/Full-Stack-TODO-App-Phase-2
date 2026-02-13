@@ -1,5 +1,6 @@
 from .user import User, UserCreate, UserRead
 from .task import Task, TaskCreate, TaskRead, TaskUpdate
+from .activity_log import ActivityLog, ActivityLogCreate, ActivityLogRead
 
 __all__ = [
     "User",
@@ -8,5 +9,8 @@ __all__ = [
     "Task",
     "TaskCreate",
     "TaskRead",
-    "TaskUpdate"
+    "TaskUpdate",
+    "ActivityLog",
+    "ActivityLogCreate",
+    "ActivityLogRead"
 ]

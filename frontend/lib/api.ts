@@ -146,7 +146,7 @@ class ApiClient {
   }
 
   // Task methods
-  async getTasks(): Promise<{ tasks: any[] }> {
+  async getTasks(): Promise<{ tasks: Task[] }> {
     const response: any = await this.request(`/tasks/`);
 
     // Map backend response to frontend Task interface
@@ -157,13 +157,27 @@ class ApiClient {
       completed: task.is_completed,
       userId: task.user_id,
       createdAt: task.created_at,
-      updatedAt: task.updated_at
+      updatedAt: task.updated_at,
+      priority: task.priority,
+      tags: task.tags,
+      dueDate: task.due_date,
+      reminderConfig: task.reminder_config,
+      recurrenceRule: task.recurrence_rule,
+      status: task.status
     }));
 
     return { tasks: mappedTasks };
   }
 
-  async createTask(taskData: { title: string; description?: string }): Promise<Task> {
+  async createTask(taskData: {
+    title: string;
+    description?: string;
+    priority?: 'low' | 'medium' | 'high';
+    tags?: string[];
+    dueDate?: string | Date;
+    reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' };
+    recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date | null; occurrencesCount?: number };
+  }): Promise<Task> {
     const response: any = await this.request(`/tasks/`, {
       method: 'POST',
       body: JSON.stringify(taskData),
@@ -177,11 +191,27 @@ class ApiClient {
       completed: response.is_completed,
       userId: response.user_id,
       createdAt: response.created_at,
-      updatedAt: response.updated_at
+      updatedAt: response.updated_at,
+      priority: response.priority,
+      tags: response.tags,
+      dueDate: response.due_date,
+      reminderConfig: response.reminder_config,
+      recurrenceRule: response.recurrence_rule,
+      status: response.status
     };
   }
 
-  async updateTask(taskId: string, taskData: { title: string; description?: string }): Promise<Task> {
+  async updateTask(taskId: string, taskData: { 
+    title?: string; 
+    description?: string; 
+    completed?: boolean; 
+    priority?: 'low' | 'medium' | 'high'; 
+    tags?: string[]; 
+    dueDate?: string | Date; 
+    reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }; 
+    recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date | null; occurrencesCount?: number }; 
+    status?: 'pending' | 'completed' | 'archived';
+  }): Promise<Task> {
     const response: any = await this.request(`/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),
@@ -195,7 +225,13 @@ class ApiClient {
       completed: response.is_completed,
       userId: response.user_id,
       createdAt: response.created_at,
-      updatedAt: response.updated_at
+      updatedAt: response.updated_at,
+      priority: response.priority,
+      tags: response.tags,
+      dueDate: response.due_date,
+      reminderConfig: response.reminder_config,
+      recurrenceRule: response.recurrence_rule,
+      status: response.status
     };
   }
 
@@ -217,7 +253,13 @@ class ApiClient {
       completed: updatedTask.is_completed,
       userId: updatedTask.user_id,
       createdAt: updatedTask.created_at,
-      updatedAt: updatedTask.updated_at
+      updatedAt: updatedTask.updated_at,
+      priority: updatedTask.priority,
+      tags: updatedTask.tags,
+      dueDate: updatedTask.due_date,
+      reminderConfig: updatedTask.reminder_config,
+      recurrenceRule: updatedTask.recurrence_rule,
+      status: updatedTask.status
     };
   }
 
@@ -225,6 +267,114 @@ class ApiClient {
     await this.request(`/tasks/${taskId}`, {
       method: 'DELETE',
     });
+  }
+
+  // Advanced feature methods
+  async searchTasks(query: string): Promise<{ tasks: Task[] }> {
+    const response: any = await this.request(`/tasks/search?q=${encodeURIComponent(query)}`);
+    
+    // Handle both array response (direct) and object response (with pagination)
+    const tasksArray = Array.isArray(response) ? response : response.tasks;
+    
+    const mappedTasks = tasksArray.map((task: any) => ({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      completed: task.is_completed,
+      userId: task.user_id,
+      createdAt: task.created_at,
+      updatedAt: task.updated_at,
+      priority: task.priority,
+      tags: task.tags,
+      dueDate: task.due_date,
+      reminderConfig: task.reminder_config,
+      recurrenceRule: task.recurrence_rule,
+      status: task.status
+    }));
+
+    return { tasks: mappedTasks };
+  }
+
+  async configureReminder(taskId: string, reminderConfig: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }): Promise<any> {
+    const response: any = await this.request(`/tasks/${taskId}/reminder`, {
+      method: 'POST',
+      body: JSON.stringify(reminderConfig),
+    });
+
+    return response;
+  }
+
+  async getReminderConfig(taskId: string): Promise<any> {
+    const response: any = await this.request(`/tasks/${taskId}/reminder`);
+    
+    return response;
+  }
+
+  async configureRecurrence(taskId: string, recurrenceRule: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }): Promise<any> {
+    const response: any = await this.request(`/tasks/${taskId}/recurrence`, {
+      method: 'POST',
+      body: JSON.stringify(recurrenceRule),
+    });
+
+    return response;
+  }
+
+  async getRecurrenceConfig(taskId: string): Promise<any> {
+    const response: any = await this.request(`/tasks/${taskId}/recurrence`);
+    
+    return response;
+  }
+
+  async completeTask(taskId: string): Promise<Task> {
+    const response: any = await this.request(`/tasks/${taskId}/complete`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'completed' }),
+    });
+
+    return {
+      id: response.id,
+      title: response.title,
+      description: response.description,
+      completed: response.is_completed,
+      userId: response.user_id,
+      createdAt: response.created_at,
+      updatedAt: response.updated_at,
+      priority: response.priority,
+      tags: response.tags,
+      dueDate: response.due_date,
+      reminderConfig: response.reminder_config,
+      recurrenceRule: response.recurrence_rule,
+      status: response.status
+    };
+  }
+
+  async archiveTask(taskId: string): Promise<Task> {
+    const response: any = await this.request(`/tasks/${taskId}/archive`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'archived' }),
+    });
+
+    return {
+      id: response.id,
+      title: response.title,
+      description: response.description,
+      completed: response.is_completed,
+      userId: response.user_id,
+      createdAt: response.created_at,
+      updatedAt: response.updated_at,
+      priority: response.priority,
+      tags: response.tags,
+      dueDate: response.due_date,
+      reminderConfig: response.reminder_config,
+      recurrenceRule: response.recurrence_rule,
+      status: response.status
+    };
+  }
+
+  async getActivityLog(taskId: string): Promise<any> {
+    const response: any = await this.request(`/tasks/${taskId}/activity`);
+    
+    return response;
   }
 }
 

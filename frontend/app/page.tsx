@@ -7,7 +7,13 @@ import { useTasks } from '../hooks/useTasks';
 import { Task } from '../lib/types';
 import Navbar from '../components/ui/Navbar';
 import TaskForm from '../components/ui/TaskForm';
+import TaskList from '../components/ui/TaskList';
 import TaskTable from '../components/ui/TaskTable';
+import TaskFilters from '../components/ui/TaskFilters';
+import TaskSortControls from '../components/ui/TaskSortControls';
+import SearchBar from '../components/ui/SearchBar';
+import ReminderConfig from '../components/ui/ReminderConfig';
+import RecurrenceConfig from '../components/ui/RecurrenceConfig';
 
 export default function HomePage() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -16,11 +22,27 @@ export default function HomePage() {
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [tempLoading, setTempLoading] = useState(false);
 
+  // State for search, filters, and sorting
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
+
   // For authenticated users, use the API tasks
   const { tasks: apiTasks, loading: apiTasksLoading, error: apiError, createTask, updateTask, toggleTaskCompletion, deleteTask } = useTasks();
 
   // Handle temporary tasks for non-authenticated users
-  const handleCreateTempTask = (title: string, description?: string) => {
+  const handleCreateTempTask = async (
+    title: string, 
+    description?: string, 
+    priority?: 'low' | 'medium' | 'high', 
+    tags?: string[], 
+    dueDate?: string | Date, 
+    reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, 
+    recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }
+  ): Promise<void> => {
     const newTask: Task = {
       id: Date.now().toString(),
       title,
@@ -29,21 +51,48 @@ export default function HomePage() {
       userId: 'guest',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      priority: priority || 'medium',
+      tags: tags || [],
+      dueDate: dueDate ? (typeof dueDate === 'string' ? dueDate : new Date(dueDate).toISOString()) : undefined,
+      reminderConfig: reminderConfig || { enabled: false, notifyBefore: 15, method: 'push' },
+      recurrenceRule: recurrenceRule || { enabled: false, pattern: 'daily', endsOn: undefined },
+      status: 'pending'
     };
     setTempTasks(prev => [...prev, newTask]);
   };
 
-  const handleUpdateTempTask = (id: string, title: string, description?: string) => {
+  const handleUpdateTempTask = async (
+    id: string, 
+    title?: string, 
+    description?: string, 
+    priority?: 'low' | 'medium' | 'high', 
+    tags?: string[], 
+    dueDate?: string | Date, 
+    reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, 
+    recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }, 
+    status?: 'pending' | 'completed' | 'archived'
+  ): Promise<void> => {
     setTempTasks(prev =>
       prev.map(task =>
         task.id === id
-          ? { ...task, title, description: description || task.description, updatedAt: new Date().toISOString() }
+          ? { 
+              ...task, 
+              title: title || task.title, 
+              description: description || task.description, 
+              priority: priority || task.priority,
+              tags: tags || task.tags,
+              dueDate: dueDate || task.dueDate,
+              reminderConfig: reminderConfig || task.reminderConfig,
+              recurrenceRule: recurrenceRule || task.recurrenceRule,
+              status: status || task.status,
+              updatedAt: new Date().toISOString() 
+            }
           : task
       )
     );
   };
 
-  const handleToggleTempTask = (id: string) => {
+  const handleToggleTempTask = async (id: string): Promise<void> => {
     setTempTasks(prev =>
       prev.map(task =>
         task.id === id
@@ -53,19 +102,92 @@ export default function HomePage() {
     );
   };
 
-  const handleDeleteTempTask = (id: string) => {
+  const handleDeleteTempTask = async (id: string): Promise<void> => {
     setTempTasks(prev => prev.filter(task => task.id !== id));
   };
 
   // Determine which functions to use based on authentication status
-  const currentCreateTask = isAuthenticated ? createTask : handleCreateTempTask;
-  const currentUpdateTask = isAuthenticated ? updateTask : handleUpdateTempTask;
+  const currentCreateTask = isAuthenticated 
+    ? (title: string, description?: string, priority?: 'low' | 'medium' | 'high', tags?: string[], dueDate?: string | Date, reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }) => 
+        createTask(title, description, priority, tags, dueDate, reminderConfig, recurrenceRule)
+    : handleCreateTempTask;
+  const currentUpdateTask = isAuthenticated
+    ? (id: string, title?: string, description?: string, priority?: 'low' | 'medium' | 'high', tags?: string[], dueDate?: string | Date, reminderConfig?: { enabled: boolean; notifyBefore: number; method: 'email' | 'push' | 'both' }, recurrenceRule?: { enabled: boolean; pattern: 'daily' | 'weekly' | 'monthly' | 'interval'; intervalDays?: number; endsOn?: string | Date; occurrencesCount?: number }, status?: 'pending' | 'completed' | 'archived') => 
+        updateTask(id, title, description, priority, tags, dueDate, reminderConfig, recurrenceRule, status)
+    : handleUpdateTempTask;
   const currentToggleTask = isAuthenticated ? toggleTaskCompletion : handleToggleTempTask;
   const currentDeleteTask = isAuthenticated ? deleteTask : handleDeleteTempTask;
 
   // For non-authenticated users, use temp tasks; for authenticated users, use API tasks
-  const displayTasks = isAuthenticated ? apiTasks : tempTasks;
+  const allTasks = isAuthenticated ? apiTasks : tempTasks;
   const displayLoading = isAuthenticated ? apiTasksLoading : tempLoading;
+
+  // Apply search, filters, and sorting to tasks
+  const displayTasks = allTasks.filter(task => {
+    // Apply priority filter
+    if (priorityFilter && task.priority !== priorityFilter) {
+      return false;
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+      if (statusFilter === 'completed' && !(task.completed || task.status === 'completed')) {
+        return false;
+      } else if (statusFilter === 'pending' && (task.completed || task.status === 'completed' || task.status === 'archived')) {
+        return false;
+      } else if (statusFilter === 'archived' && task.status !== 'archived') {
+        return false;
+      }
+    }
+    
+    // Apply tag filter
+    if (tagFilter && task.tags && !task.tags.some(tag => 
+      tag.toLowerCase().includes(tagFilter.toLowerCase())
+    )) {
+      return false;
+    }
+    
+    // Apply search query
+    if (searchQuery && 
+        !task.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
+        !(task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))) {
+      return false;
+    }
+    
+    return true;
+  }).sort((a, b) => {
+    let aValue, bValue;
+
+    switch (sortBy) {
+      case 'priority':
+        // Define priority order: high > medium > low
+        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+        aValue = priorityOrder[a.priority || 'medium'];
+        bValue = priorityOrder[b.priority || 'medium'];
+        break;
+      case 'due_date':
+        aValue = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+        bValue = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+        break;
+      case 'created_at':
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+        break;
+      case 'title':
+        aValue = a.title.toLowerCase();
+        bValue = b.title.toLowerCase();
+        break;
+      default:
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+    }
+
+    if (sortOrder === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bluish-50 to-purplish-50">
@@ -126,17 +248,46 @@ export default function HomePage() {
               </div>
             )}
 
+            {/* Search Bar */}
+            <div className="mb-6">
+              <SearchBar onSearch={setSearchQuery} />
+            </div>
+
+            {/* Filter and Sort Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <TaskFilters 
+                priorityFilter={priorityFilter}
+                tagFilter={tagFilter}
+                statusFilter={statusFilter}
+                onPriorityChange={setPriorityFilter}
+                onTagChange={setTagFilter}
+                onStatusChange={setStatusFilter}
+              />
+              <TaskSortControls 
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSortByChange={setSortBy}
+                onSortOrderChange={setSortOrder}
+              />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column - Task Table */}
-              <div>
+              {/* Left Column - Task List */}
+              <div className="lg:col-span-2">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Your Tasks</h3>
-                <TaskTable
+                <TaskList
                   tasks={displayTasks}
                   loading={displayLoading}
                   error={isAuthenticated ? apiError : null}
                   onUpdateTask={currentUpdateTask}
                   onToggleTask={currentToggleTask}
                   onDeleteTask={currentDeleteTask}
+                  searchQuery={searchQuery}
+                  priorityFilter={priorityFilter}
+                  tagFilter={tagFilter}
+                  statusFilter={statusFilter}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
                 />
               </div>
 

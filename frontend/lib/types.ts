@@ -16,6 +16,22 @@ export interface Task {
   userId: string;       // foreign key to user who owns this task
   createdAt: string | Date;    // task creation timestamp
   updatedAt: string | Date;    // last update timestamp
+  priority?: 'low' | 'medium' | 'high'; // task priority, default: 'medium'
+  tags?: string[];      // array of tags, max 10
+  dueDate?: string | Date; // due date for the task
+  reminderConfig?: {    // reminder configuration
+    enabled: boolean;
+    notifyBefore: number; // minutes before due date
+    method: 'email' | 'push' | 'both';
+  };
+  recurrenceRule?: {   // recurrence rule configuration
+    enabled: boolean;
+    pattern: 'daily' | 'weekly' | 'monthly' | 'interval';
+    intervalDays?: number;
+    endsOn?: string | Date;
+    occurrencesCount?: number;
+  };
+  status?: 'pending' | 'completed' | 'archived'; // task status, default: 'pending'
 }
 
 // Auth state interface

@@ -10,6 +10,7 @@ from src.models.user import User
 from src.models.task import Task
 from src.models.conversation import Conversation
 from src.models.message import Message
+from src.models.activity_log import ActivityLog
 
 def create_tables():
     """Create all tables in the database."""
@@ -24,6 +25,7 @@ def create_tables():
     print("- tasks")
     print("- conversations")
     print("- messages")
+    print("- activity_logs")
 
 if __name__ == "__main__":
     create_tables()
