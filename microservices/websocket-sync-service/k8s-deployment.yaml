@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websocket-sync-service
+  namespace: todo
+  labels:
+    app: websocket-sync-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: websocket-sync-service
+  template:
+    metadata:
+      labels:
+        app: websocket-sync-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "websocket-sync-service"
+        dapr.io/app-port: "8001"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/log-level: "info"
+        dapr.io/config: "dapr-config"
+    spec:
+      containers:
+      - name: websocket-sync-service
+        image: websocket-sync-service:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-sync-service
+  namespace: todo
+  labels:
+    app: websocket-sync-service
+spec:
+  selector:
+    app: websocket-sync-service
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+  type: ClusterIP

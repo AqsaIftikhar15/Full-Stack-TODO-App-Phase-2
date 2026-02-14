@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-service
+  namespace: todo
+  labels:
+    app: audit-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audit-service
+  template:
+    metadata:
+      labels:
+        app: audit-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "audit-service"
+        dapr.io/app-port: "8003"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/log-level: "info"
+        dapr.io/config: "dapr-config"
+    spec:
+      containers:
+      - name: audit-service
+        image: audit-service:latest
+        ports:
+        - containerPort: 8003
+        env:
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: postgres-connection
+              key: url
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+  namespace: todo
+  labels:
+    app: audit-service
+spec:
+  selector:
+    app: audit-service
+  ports:
+    - protocol: TCP
+      port: 8003
+      targetPort: 8003
+  type: ClusterIP

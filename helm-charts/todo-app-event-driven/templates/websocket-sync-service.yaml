@@ -1,0 +1,83 @@
+{{- if .Values.websocketSyncService }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app-event-driven.fullname" . }}-websocket-sync-service
+  labels:
+    {{- include "todo-app-event-driven.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "todo-app-event-driven.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: websocket-sync-service
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        {{- if .Values.dapr.enabled }}
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "websocket-sync-service"
+        dapr.io/app-port: "{{ .Values.websocketSyncService.service.port }}"
+        dapr.io/config: "{{ .Values.dapr.config }}"
+        {{- end }}
+      {{- end }}
+      labels:
+        {{- include "todo-app-event-driven.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: websocket-sync-service
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "todo-app-event-driven.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-websocket-sync-service
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.websocketSyncService.image.repository }}:{{ .Values.websocketSyncService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.websocketSyncService.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.websocketSyncService.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.websocketSyncService.resources | nindent 12 }}
+          env:
+            - name: DAPR_HTTP_PORT
+              value: "3500"
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-app-event-driven.fullname" . }}-websocket-sync-service
+  labels:
+    {{- include "todo-app-event-driven.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.websocketSyncService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "todo-app-event-driven.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: websocket-sync-service
+{{- end }}

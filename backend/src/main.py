@@ -10,6 +10,7 @@ from .models.task import Task
 from .models.conversation import Conversation
 from .models.message import Message
 from .models.activity_log import ActivityLog
+from .utils.dapr_publisher import shutdown_publisher
 
 
 @asynccontextmanager
@@ -19,7 +20,8 @@ async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(bind=engine)
     print("Database tables initialized successfully!")
     yield
-    # Shutdown: cleanup code would go here if needed
+    # Shutdown: cleanup code
+    await shutdown_publisher()
 
 
 def create_app() -> FastAPI:

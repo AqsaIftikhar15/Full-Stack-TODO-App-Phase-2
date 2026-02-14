@@ -1,0 +1,433 @@
+# API Contract: Todo Backend Service
+
+## Overview
+This document defines the API contract for the Todo Backend Service, which serves as the primary interface for task management operations. The service follows RESTful principles and communicates via JSON over HTTP.
+
+## Base URL
+`http://todo-backend:8000/api`
+
+## Authentication
+All endpoints require a valid JWT token in the Authorization header:
+```
+Authorization: Bearer <jwt-token>
+```
+
+## Common Response Format
+
+### Success Response
+```json
+{
+  "success": true,
+  "data": { /* response data */ },
+  "message": "Optional message"
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error message",
+    "details": { /* optional error details */ }
+  }
+}
+```
+
+## Endpoints
+
+### Task Management
+
+#### GET /{user_id}/tasks
+Retrieve all tasks for a specific user.
+
+**Parameters**:
+- `user_id` (path): The ID of the user whose tasks to retrieve
+- `status` (query, optional): Filter by task status (pending, completed, archived)
+- `priority` (query, optional): Filter by priority (low, medium, high)
+- `due_after` (query, optional): Filter tasks due after this date (ISO 8601)
+- `due_before` (query, optional): Filter tasks due before this date (ISO 8601)
+- `tag` (query, optional): Filter by tag
+- `limit` (query, optional): Maximum number of tasks to return (default: 50)
+- `offset` (query, optional): Number of tasks to skip (for pagination)
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "tasks": [
+      {
+        "id": "string",
+        "title": "string",
+        "description": "string",
+        "completed": false,
+        "userId": "string",
+        "createdAt": "2023-01-01T00:00:00Z",
+        "updatedAt": "2023-01-01T00:00:00Z",
+        "priority": "low|medium|high",
+        "tags": ["string"],
+        "dueDate": "2023-01-01T00:00:00Z",
+        "reminderConfig": {
+          "enabled": true,
+          "notifyBefore": 15,
+          "method": "email|push|both"
+        },
+        "recurrenceRule": {
+          "enabled": true,
+          "pattern": "daily|weekly|monthly|interval",
+          "intervalDays": 1,
+          "endsOn": "2023-01-01T00:00:00Z",
+          "occurrencesCount": 10
+        },
+        "status": "pending|completed|archived"
+      }
+    ],
+    "total": 100,
+    "limit": 50,
+    "offset": 0
+  }
+}
+```
+
+#### POST /{user_id}/tasks
+Create a new task.
+
+**Parameters**:
+- `user_id` (path): The ID of the user creating the task
+
+**Request Body**:
+```json
+{
+  "title": "string (required)",
+  "description": "string (optional)",
+  "priority": "low|medium|high (optional, default: medium)",
+  "tags": ["string"] (optional)",
+  "dueDate": "2023-01-01T00:00:00Z (optional)",
+  "reminderConfig": {
+    "enabled": true,
+    "notifyBefore": 15,
+    "method": "email|push|both"
+  },
+  "recurrenceRule": {
+    "enabled": true,
+    "pattern": "daily|weekly|monthly|interval",
+    "intervalDays": 1,
+    "endsOn": "2023-01-01T00:00:00Z",
+    "occurrencesCount": 10
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "completed": false,
+    "userId": "string",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z",
+    "priority": "low|medium|high",
+    "tags": ["string"],
+    "dueDate": "2023-01-01T00:00:00Z",
+    "reminderConfig": {
+      "enabled": true,
+      "notifyBefore": 15,
+      "method": "email|push|both"
+    },
+    "recurrenceRule": {
+      "enabled": true,
+      "pattern": "daily|weekly|monthly|interval",
+      "intervalDays": 1,
+      "endsOn": "2023-01-01T00:00:00Z",
+      "occurrencesCount": 10
+    },
+    "status": "pending"
+  }
+}
+```
+
+#### GET /{user_id}/tasks/{id}
+Get a specific task by ID.
+
+**Parameters**:
+- `user_id` (path): The ID of the user
+- `id` (path): The ID of the task to retrieve
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "completed": false,
+    "userId": "string",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z",
+    "priority": "low|medium|high",
+    "tags": ["string"],
+    "dueDate": "2023-01-01T00:00:00Z",
+    "reminderConfig": {
+      "enabled": true,
+      "notifyBefore": 15,
+      "method": "email|push|both"
+    },
+    "recurrenceRule": {
+      "enabled": true,
+      "pattern": "daily|weekly|monthly|interval",
+      "intervalDays": 1,
+      "endsOn": "2023-01-01T00:00:00Z",
+      "occurrencesCount": 10
+    },
+    "status": "pending|completed|archived"
+  }
+}
+```
+
+#### PUT /{user_id}/tasks/{id}
+Update a specific task.
+
+**Parameters**:
+- `user_id` (path): The ID of the user
+- `id` (path): The ID of the task to update
+
+**Request Body**:
+```json
+{
+  "title": "string (optional)",
+  "description": "string (optional)",
+  "priority": "low|medium|high (optional)",
+  "tags": ["string"] (optional)",
+  "dueDate": "2023-01-01T00:00:00Z (optional)",
+  "reminderConfig": {
+    "enabled": true,
+    "notifyBefore": 15,
+    "method": "email|push|both"
+  },
+  "recurrenceRule": {
+    "enabled": true,
+    "pattern": "daily|weekly|monthly|interval",
+    "intervalDays": 1,
+    "endsOn": "2023-01-01T00:00:00Z",
+    "occurrencesCount": 10
+  },
+  "status": "pending|completed|archived (optional)"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "completed": false,
+    "userId": "string",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z",
+    "priority": "low|medium|high",
+    "tags": ["string"],
+    "dueDate": "2023-01-01T00:00:00Z",
+    "reminderConfig": {
+      "enabled": true,
+      "notifyBefore": 15,
+      "method": "email|push|both"
+    },
+    "recurrenceRule": {
+      "enabled": true,
+      "pattern": "daily|weekly|monthly|interval",
+      "intervalDays": 1,
+      "endsOn": "2023-01-01T00:00:00Z",
+      "occurrencesCount": 10
+    },
+    "status": "pending|completed|archived"
+  }
+}
+```
+
+#### DELETE /{user_id}/tasks/{id}
+Delete a specific task.
+
+**Parameters**:
+- `user_id` (path): The ID of the user
+- `id` (path): The ID of the task to delete
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "message": "Task deleted successfully"
+  }
+}
+```
+
+#### PATCH /{user_id}/tasks/{id}/complete
+Mark a task as completed.
+
+**Parameters**:
+- `user_id` (path): The ID of the user
+- `id` (path): The ID of the task to complete
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "title": "string",
+    "completed": true,
+    "updatedAt": "2023-01-01T00:00:00Z",
+    "status": "completed"
+  }
+}
+```
+
+#### POST /{user_id}/chat
+Handle natural language chat messages and return structured responses with tool calls.
+
+**Parameters**:
+- `user_id` (path): The ID of the user
+
+**Request Body**:
+```json
+{
+  "message": "string (required)",
+  "sessionId": "string (optional)"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "response": "string",
+    "tool_calls": [
+      {
+        "name": "string",
+        "arguments": {}
+      }
+    ],
+    "sessionId": "string"
+  }
+}
+```
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| AUTH_001 | 401 | Invalid or expired JWT token |
+| AUTH_002 | 403 | Insufficient permissions for requested resource |
+| TASK_001 | 404 | Task not found |
+| TASK_002 | 400 | Invalid task data provided |
+| TASK_003 | 409 | Conflict with existing task |
+| USER_001 | 404 | User not found |
+| SYS_001 | 500 | Internal server error |
+| SYS_002 | 503 | Service temporarily unavailable |
+
+## Event Contracts
+
+### Task Created Event
+Published when a new task is created.
+
+**Topic**: `task-events`
+**Event Type**: `created`
+
+**Payload**:
+```json
+{
+  "eventId": "string",
+  "eventType": "created",
+  "taskId": "string",
+  "userId": "string",
+  "timestamp": "2023-01-01T00:00:00Z",
+  "taskData": { /* full task object */ }
+}
+```
+
+### Task Updated Event
+Published when a task is updated.
+
+**Topic**: `task-events`
+**Event Type**: `updated`
+
+**Payload**:
+```json
+{
+  "eventId": "string",
+  "eventType": "updated",
+  "taskId": "string",
+  "userId": "string",
+  "timestamp": "2023-01-01T00:00:00Z",
+  "taskData": { /* updated task object */ },
+  "previousTaskData": { /* previous task object */ }
+}
+```
+
+### Task Completed Event
+Published when a task is marked as completed.
+
+**Topic**: `task-events`
+**Event Type**: `completed`
+
+**Payload**:
+```json
+{
+  "eventId": "string",
+  "eventType": "completed",
+  "taskId": "string",
+  "userId": "string",
+  "timestamp": "2023-01-01T00:00:00Z",
+  "taskData": { /* completed task object */ }
+}
+```
+
+### Task Deleted Event
+Published when a task is deleted.
+
+**Topic**: `task-events`
+**Event Type**: `deleted`
+
+**Payload**:
+```json
+{
+  "eventId": "string",
+  "eventType": "deleted",
+  "taskId": "string",
+  "userId": "string",
+  "timestamp": "2023-01-01T00:00:00Z",
+  "taskData": { /* deleted task object */ }
+}
+```
+
+### Reminder Scheduled Event
+Published when a reminder is scheduled for a task.
+
+**Topic**: `reminders`
+**Event Type**: `scheduled`
+
+**Payload**:
+```json
+{
+  "eventId": "string",
+  "taskId": "string",
+  "title": "string",
+  "dueAt": "2023-01-01T00:00:00Z",
+  "remindAt": "2023-01-01T00:00:00Z",
+  "userId": "string",
+  "notificationMethod": "email|push|both",
+  "status": "scheduled"
+}
+```

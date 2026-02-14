@@ -1,0 +1,15 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: postgresql-statestore
+  namespace: todo
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString
+    value: "host=neon-postgres user=dapr_app_user password=dapr_app_password dbname=todo_app port=5432 sslmode=require"
+  - name: actorStateStore
+    value: "true"
+  - name: concurrency
+    value: "first-write"

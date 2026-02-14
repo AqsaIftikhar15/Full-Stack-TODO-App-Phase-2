@@ -1,0 +1,83 @@
+{{- if .Values.recurringTaskService }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app-event-driven.fullname" . }}-recurring-task-service
+  labels:
+    {{- include "todo-app-event-driven.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "todo-app-event-driven.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: recurring-task-service
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        {{- if .Values.dapr.enabled }}
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "recurring-task-service"
+        dapr.io/app-port: "{{ .Values.recurringTaskService.service.port }}"
+        dapr.io/config: "{{ .Values.dapr.config }}"
+        {{- end }}
+      {{- end }}
+      labels:
+        {{- include "todo-app-event-driven.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: recurring-task-service
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "todo-app-event-driven.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-recurring-task-service
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.recurringTaskService.image.repository }}:{{ .Values.recurringTaskService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.recurringTaskService.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.recurringTaskService.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.recurringTaskService.resources | nindent 12 }}
+          env:
+            - name: DAPR_HTTP_PORT
+              value: "3500"
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-app-event-driven.fullname" . }}-recurring-task-service
+  labels:
+    {{- include "todo-app-event-driven.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.recurringTaskService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "todo-app-event-driven.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: recurring-task-service
+{{- end }}

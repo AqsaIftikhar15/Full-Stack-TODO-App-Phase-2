@@ -1,0 +1,11 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: dapr-jobs
+  namespace: todo
+spec:
+  type: scheduler.custom
+  version: v1
+  metadata:
+  - name: schedulerAddress
+    value: "dapr-scheduler-server:50005"
